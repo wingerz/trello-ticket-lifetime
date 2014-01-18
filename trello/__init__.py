@@ -340,13 +340,9 @@ class Board(object):
 		return cards
 		
 	def fetch_actions(self, action_filter):
-		params = {'limit': 1000}
-		if action_filter:
-			params['filter'] = action_filter
-        
 		json_obj = self.client.fetch_json(
 			'/boards/' + self.id + '/actions',
-			query_params = params)
+			query_params = {'filter': action_filter})
 		self.actions = json_obj
 
 class List(object):
@@ -411,10 +407,7 @@ class List(object):
 		"""
 		json_obj = self.client.fetch_json(
 				'/lists/'+self.id+'/actions',
-				query_params = {'filter': action_filter,
-                                
-
-                            })
+				query_params = {'filter': action_filter})
 		self.actions = json_obj
 
 	def _set_remote_attribute(self, attribute, value):
@@ -486,12 +479,9 @@ class Card(object):
 		Fetch actions for this card can give more argv to action_filter, 
 		split for ',' json_obj is list
 		"""
-		params = {}
-		if action_filter:
-			params['filter'] = action_filter
 		json_obj = self.client.fetch_json(
 				'/cards/'+self.id+'/actions',
-				query_params = params)
+				query_params = {'filter': action_filter})
 		self.actions = json_obj
 
 	@property

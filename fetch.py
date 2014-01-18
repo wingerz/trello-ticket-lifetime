@@ -3,7 +3,8 @@ import trello
 import yaml
 
 
-
+DATA_DIR = 'data/'
+    
 def get_client(config):
     client = trello.TrelloClient(config['key'], api_secret=config['secret'], token=config['oauth_token'], token_secret=config['oauth_token_secret'])
     return client
@@ -18,8 +19,6 @@ def card_to_json(card):
     return_dict['actions'] = card_actions
     return return_dict
 
-DATA_DIR = 'data/'
-    
 if __name__ == "__main__":
     with open('secret.yaml') as f:
         config = yaml.load(f)

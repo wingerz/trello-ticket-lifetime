@@ -1,16 +1,18 @@
 import json
+import pprint
 import sys
 
 def get_action_list(card):
     events = []
     for action in card['actions']:
+        pprint.pprint(action)
         if action['type'] == 'createCard':
             create_event = {
                 'date': action['date'],
                 'after_list': action['data']['list'],
             }
             events.append(create_event)
-        elif action['type'] == 'updateCard':
+        elif action['type'] == 'updateCard' and 'listAfter' in action['data']:
             move_event = {
                 'date': action['date'],
                 'after_list': action['data']['listAfter']
