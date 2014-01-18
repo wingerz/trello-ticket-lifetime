@@ -1,5 +1,6 @@
 import json
-import pprint
+from os import listdir
+from os.path import isfile, join
 import sys
 
 def get_action_list(card):
@@ -34,10 +35,14 @@ def transform_card(card):
     
 
 if __name__ == "__main__":
-    card_file = sys.argv[1]
-    with open(card_file, 'r') as f:
-        data = f.readline()
-        card = json.loads(data)
-
-    new_card = transform_card(card)
-    print json.dumps(new_card)
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
+    
+    data_files = [f for f in listdir(input_dir) if isfile(join(input_dir, f))]
+    for card_file in data_files:
+        with open(join(input_dir, card_file), 'r') as f:
+            data = f.readline()
+            card = json.loads(data)
+        new_card = transform_card(card)
+        with open(join(output_dir, card_file), 'w') as f:
+            print >>f, json.dumps(new_card)
