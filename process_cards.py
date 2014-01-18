@@ -4,8 +4,8 @@ import sys
 
 def get_action_list(card):
     events = []
+    unrecognized_actions = []
     for action in card['actions']:
-        pprint.pprint(action)
         if action['type'] == 'createCard':
             create_event = {
                 'date': action['date'],
@@ -18,16 +18,18 @@ def get_action_list(card):
                 'after_list': action['data']['listAfter']
             }
             events.append(move_event)
+        else:
+            unrecognized_actions.append(action)
 
     events = sorted(events, key=lambda(x): x['date'])
-    return events
+    return events, unrecognized_actions
     
 def transform_card(card):
     return_dict = {}
     for key in ['id', 'url', 'name']:
         return_dict[key] = card[key]
 
-    return_dict['lifetime'] = get_action_list(card)
+    return_dict['lifetime'], _ = get_action_list(card)
     return return_dict
     
 
