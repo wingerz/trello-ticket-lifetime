@@ -3,11 +3,27 @@ from os import listdir
 from os.path import isfile, join
 import sys
 
+
+def list_to_class(list_name):
+    if list_name in ('In Review', 'Code Review'):
+        return 'review'
+    elif list_name.startswith('Done'):
+        return 'done'
+    elif list_name in ('Dev', 'Doing'):
+        return 'dev'
+    elif list_name in ('Ready/Push Queue', 'Ready'):
+        return 'ready'
+    else:
+        return 'queued'
+
+
 def construct_lanes(cards):
     lanes = []
     items = []
     card_id = 0
     thing_id = 0
+
+    lists = set()
     
     for card in cards:
         lane_id = card_id
@@ -30,9 +46,8 @@ def construct_lanes(cards):
             item = item_base.copy()
             item['id'] = phase['after_list']['name'] #thing_id
 
-            # TODO figure out what to do here
-            item['class'] = 'past'
             item['desc'] = phase['after_list']['name']
+            item['class'] = list_to_class(item['desc'])
             item['start'] = phase['date']
 
             previous_item = item
@@ -47,6 +62,7 @@ def construct_lanes(cards):
     return {
         'lanes': lanes,
         'items': items,
+        'lists': list(lists)
     }
     
 
