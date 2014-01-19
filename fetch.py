@@ -27,7 +27,6 @@ if __name__ == "__main__":
     client = get_client(config)
     boards = client.list_boards()
     mobile_board = client.get_board('51bba780ac3b4aae26006928')
-
     cards = mobile_board.all_cards()
     for card in cards:
         with open(DATA_DIR + card.id + '.json', 'w') as f:
