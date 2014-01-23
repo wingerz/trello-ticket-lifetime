@@ -29,7 +29,6 @@ THE SOFTWARE.
 <title>Swimlane using d3.js</title>
 <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="util.js"></script>
 <style>
 .chart {
 	shape-rendering: crispEdges;
@@ -106,12 +105,21 @@ THE SOFTWARE.
 <body>
 
 <script type="text/javascript">
+function processData(data) {
+    $.each(data.items, function(index, item) {
+        item['start'] = new Date(item['start']);
+        item['end'] = new Date(item['end']);
+    });
+}
+
+
+
   (function () {
 
 
 $.ajax({
     type: 'GET',
-    url: 'trello-summary.json',
+    url: 'lanes.json',
     dataType: 'json',
     success: function(data) {
   window.trelloData = data;
