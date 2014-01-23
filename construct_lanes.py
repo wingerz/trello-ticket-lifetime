@@ -120,6 +120,7 @@ def process_times(all_card_times):
     ready_times = [card[4] for card in all_card_times]
 
     total_time_in_flight = [card[1] + card[2] + card[3] + card[4] for card in all_card_times]
+    total_active_time = [card[2] + card[3] + card[4] for card in all_card_times]
     dev_to_review_ratio = []
 
     for card in all_card_times:
@@ -128,6 +129,7 @@ def process_times(all_card_times):
 
     stats = {
         'total': compute_stats(total_time_in_flight),
+        'active': compute_stats(total_active_time),
         'review': compute_stats(review_times),
         'dev': compute_stats(dev_times),
         'ready': compute_stats(ready_times),
@@ -137,7 +139,11 @@ def process_times(all_card_times):
     return stats
 
 
-    
+def sanitize_float(float_val):
+    if float_val < 0.01:
+        return 0
+    else:
+        return float_val
     
 if __name__ == "__main__":
     input_dir = sys.argv[1]
@@ -163,9 +169,32 @@ if __name__ == "__main__":
             card_time_data.append(data)
             
     with open('card_times.csv', 'w') as f:
+        print >>f, ','.join(['name','queued','dev','review','ready'])
         for data in card_time_data:
-            print >>f, ','.join(str(i) for i in data)
+            output_arr = [data[0]]
+            output_arr.extend(str(sanitize_float(i)) for i in data[1:])
+            print >>f, ','.join(output_arr)
 
 
     stats = process_times(card_time_data)
-    pprint.pprint(stats)
+
+    column_order = ['avg', 'std', 'median', 'min', 'max', 'count']
+    print "name\t%s" % '\t'.join(column_order)
+    for row in ['active', 'queue', 'dev', 'review', 'ready', 'total', 'dev_to_review_ratio']:
+        output_row = [row]
+        for col in column_order:
+            output_row.append("%.2f" % stats[row][col])
+        
+        print "\t".join(output_row)
+        
+
+
+
+        #'count': len(arr),
+        #'avg': numpy.average(arr),
+        #'median': numpy.median(arr),
+        #'std': numpy.std(arr),
+        #'min': min(arr),
+        #'max': max(arr),
+
+    

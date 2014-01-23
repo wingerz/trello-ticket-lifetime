@@ -27,8 +27,8 @@ body {
 <script>
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 1600 - margin.left - margin.right,
-    height = 800 - margin.top - margin.bottom;
+    width = 1280 - margin.left - margin.right,
+    height = 640 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -105,6 +105,7 @@ return d.card;
 });
 
 
+
   var legend = svg.selectAll(".legend")
       .data(color.domain().slice().reverse())
     .enter().append("g")
@@ -123,6 +124,7 @@ return d.card;
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text(function(d) { return d; });
+
 
 });
 
