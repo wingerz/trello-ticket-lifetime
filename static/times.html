@@ -21,6 +21,10 @@ body {
   display: none;
 }
 
+.x.axis text {
+  display: none;
+}
+
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -91,19 +95,26 @@ return {name: name, y0: y0, y1: y0 += +d[name], card: d.name};
       .data(data)
     .enter().append("g")
       .attr("class", "g")
+      .attr("class", "name")
       .attr("transform", function(d) { return "translate(" + x(d.name) + ",0)"; });
 
   state.selectAll("rect")
       .data(function(d) { return d.ages; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.y1); })
+      .attr("y", function(d) { 
+
+if (isNaN(y(d.y1))){
+console.log(d);
+
+}
+return y(d.y1); 
+})
       .attr("height", function(d) { return y(d.y0) - y(d.y1); })
       .style("fill", function(d) { return color(d.name); })
       .append("title").text(function(d) {
 return d.card;
 });
-
 
 
   var legend = svg.selectAll(".legend")
@@ -126,6 +137,78 @@ return d.card;
       .text(function(d) { return d; });
 
 
+legend.on('click', function(){
+
+  data.forEach(function(d) {
+    var y0 = 0.;
+    d.ages = color.domain().map(function(name) { 
+/*return {name: name, y0: y0, y1: y0 += +d[name], card: d.name}; */
+
+var amountToAdd = 0.;
+if (name === "dev" || name === "review") {
+amountToAdd = d[name];
+}
+
+return {name: name, y0: y0, y1: y0 += amountToAdd, card: d.name}; 
 });
+    d.total = d.ages[d.ages.length - 1].y1;
+    
+  });
+
+  data.sort(function(a, b) { return b.total - a.total; });
+
+  x.domain(data.map(function(d) { return d.name; }));
+/*  y.domain([0, d3.max(data, function(d) { return d.total; })]);*/
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  var state = svg.selectAll(".name")
+      .data(data)
+      .attr("class", "g")
+      .attr("transform", function(d) { return "translate(" + x(d.name) + ",0)"; });
+
+
+var rects = svg.selectAll("rect");
+
+  state.selectAll("rect")
+      .data(function(d) { return d.ages;
+
+})
+.transition()
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { 
+if (isNaN(y(parseFloat(d.y1)))){
+console.log(d);
+}
+
+
+return y(parseFloat(d.y1)); 
+
+})
+      .attr("height", function(d) { return y(parseFloat(d.y0)) - y(parseFloat(d.y1)); })
+.attr("title", function(d) {
+return d.card;
+});
+
+
+
+
+
+
+
+
+
+
+
+
+});
+
+});
+
+
+
 
 </script>

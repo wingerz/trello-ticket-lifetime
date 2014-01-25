@@ -162,7 +162,7 @@ if __name__ == "__main__":
     card_time_data = []
     for card in cards:
         if is_complete(card):
-            data = [card['name'].replace(',', ' ')]
+            data = [card['name'].replace(',', ' ').replace('\n', '')]
             times = summarize_card_times(card)
             data.extend(times)
             
