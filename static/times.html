@@ -30,6 +30,23 @@ body {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
+graphConfigurations = [
+  ["dev", "review", "ready"],
+  ["dev"],
+  ["review"],
+  ["ready"],
+];
+
+
+window.state = {
+  allPhases: ["dev", "review", "ready"],
+  allColors: ["lightgreen", "yellow", "orange"],
+  graphConfigurationIndex: 0,
+  phasesToShow: function() {
+    return window.graphConfigurations[window.state.graphConfigurationIndex];
+  }
+};
+
 function key(d) {
   return d.name;
 }
@@ -45,7 +62,7 @@ var y = d3.scale.linear()
     .rangeRound([height, 0]);
 
 var color = d3.scale.ordinal()
-    .range(["lightgreen", "yellow", "orange"]);
+    .range(state.allColors);
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -63,15 +80,17 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.csv("card_times.csv", function(error, data) {
-  color.domain(d3.keys(data[0]).filter(function(key) { 
-    return key !== "name" && key !== "queued"; 
-  }));
+  color.domain(window.state.allPhases);
 
   data.forEach(function(d) {
     var y0 = 0;
     d.ages = color.domain().map(function(name) { 
-return {name: name, y0: y0, y1: y0 += +d[name], card: d.name}; 
-});
+      var amountToAdd = 0.;
+      if (window.state.phasesToShow().indexOf(name) !== -1){
+        amountToAdd = +d[name];
+      }
+      return {name: name, y0: y0, y1: y0 += amountToAdd, card: d.name}; 
+      });
     d.total = d.ages[d.ages.length - 1].y1;
   });
 
@@ -141,28 +160,27 @@ return d.card;
       .text(function(d) { return d; });
 
 
-legend.on('click', function(){
+svg.on('click', function(){
 
+  window.state.graphConfigurationIndex += 1;
+  if (window.state.graphConfigurationIndex >= window.graphConfigurations.length){
+    window.state.graphConfigurationIndex = 0;
+  }
   data.forEach(function(d) {
     var y0 = 0.;
     d.ages = color.domain().map(function(name) { 
-/*return {name: name, y0: y0, y1: y0 += +d[name], card: d.name}; */
-
-var amountToAdd = 0.;
-if (name === "dev" || name === "review") {
-amountToAdd = parseFloat(d[name]);
-}
-
-return {name: name, y0: parseFloat(y0), y1: y0 += parseFloat(amountToAdd), card: d.name}; 
-});
+      var amountToAdd = 0.;
+      if (window.state.phasesToShow().indexOf(name) !== -1){
+        amountToAdd = +d[name];
+      }
+      return {name: name, y0: +y0, y1: y0 += +amountToAdd, card: d.name}; 
+    });
     d.total = d.ages[d.ages.length - 1].y1;
-    
   });
 
   data.sort(function(a, b) { return b.total - a.total; });
 
   x.domain(data.map(function(d) { return d.name; }));
-/*  y.domain([0, d3.max(data, function(d) { return d.total; })]);*/
 
   svg.append("g")
       .attr("class", "x axis")
@@ -172,43 +190,24 @@ return {name: name, y0: parseFloat(y0), y1: y0 += parseFloat(amountToAdd), card:
   var state = svg.selectAll(".name")
       .data(data, key)
       .attr("class", "g")
+      .attr("class", "name")
       .attr("transform", function(d) { return "translate(" + x(d.name) + ",0)"; });
 
 
-var rects = svg.selectAll("rect");
-
   state.selectAll("rect")
-      .data(function(d) { return d.ages;
-
+      .data(function(d) {
+return d.ages;
 })
-.transition()
+      .transition()
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { 
-if (isNaN(y(parseFloat(d.y1)))){
-console.log(d);
-}
-
-
-return y(parseFloat(d.y1)); 
-
+      .attr("y", function(d) {
+return y(+d.y1);
 })
-      .attr("height", function(d) { return y(parseFloat(d.y0)) - y(parseFloat(d.y1)); })
-.attr("title", function(d) {
-return d.card;
-});
-
-
-
-
-
-
-
-
-
-
-
-
-});
+      .attr("height", function(d) { 
+return y(+d.y0) - y(+d.y1); 
+})
+      .attr("title", function(d) {return d.card;});
+  });
 
 });
 
