@@ -30,6 +30,10 @@ body {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
+function key(d) {
+  return d.name;
+}
+
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = 1280 - margin.left - margin.right,
     height = 640 - margin.top - margin.bottom;
@@ -92,7 +96,7 @@ return {name: name, y0: y0, y1: y0 += +d[name], card: d.name};
       .text("Time (days)");
 
   var state = svg.selectAll(".name")
-      .data(data)
+      .data(data, key)
     .enter().append("g")
       .attr("class", "g")
       .attr("class", "name")
@@ -146,10 +150,10 @@ legend.on('click', function(){
 
 var amountToAdd = 0.;
 if (name === "dev" || name === "review") {
-amountToAdd = d[name];
+amountToAdd = parseFloat(d[name]);
 }
 
-return {name: name, y0: y0, y1: y0 += amountToAdd, card: d.name}; 
+return {name: name, y0: parseFloat(y0), y1: y0 += parseFloat(amountToAdd), card: d.name}; 
 });
     d.total = d.ages[d.ages.length - 1].y1;
     
@@ -166,7 +170,7 @@ return {name: name, y0: y0, y1: y0 += amountToAdd, card: d.name};
       .call(xAxis);
 
   var state = svg.selectAll(".name")
-      .data(data)
+      .data(data, key)
       .attr("class", "g")
       .attr("transform", function(d) { return "translate(" + x(d.name) + ",0)"; });
 
